@@ -1,4 +1,4 @@
-# Drone Mission Control Backend
+# Drone Mission Control 
 
 A complete backend system for drone mission planning, real-time simulation, drone tracking, analytics, fleet management, and reporting.  
 Built using **FastAPI**, **SQLAlchemy**, **PostgreSQL**, **WebSockets**, and a custom mission simulator.
