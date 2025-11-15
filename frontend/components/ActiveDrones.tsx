@@ -41,7 +41,7 @@ export default function ActiveDrones() {
         const dronesData = await api.getDrones();
         setDrones(
           dronesData.map((d) => ({
-            id: d.id,
+            id: Number(d.id),
             name: d.name,
             status: d.status as any,
             battery: d.battery,
