@@ -9,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Zap } from "lucide-react";
+import dynamic from "next/dynamic";
 
-import DroneMapPreview from "@/components/DroneMapPreview";
 
 function getStatusColor(status: string) {
   switch (status) {
@@ -24,6 +24,12 @@ function getStatusColor(status: string) {
       return "bg-gray-500";
   }
 }
+
+const DroneMapPreview = dynamic(
+  () => import("@/components/DroneMapPreview"),
+  { ssr: false }
+);
+
 
 function getBatteryColor(battery: number) {
   if (battery > 50) return "text-green-500";

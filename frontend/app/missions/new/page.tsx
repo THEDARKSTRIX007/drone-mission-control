@@ -3,9 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import PolygonDrawer from "@/components/PolygonDrawer";
-import MapClient from "@/components/MapClient";
-
+import dynamic from "next/dynamic";
 import { useMissionStore } from "@/lib/store";
 import { api } from "@/lib/api";
 
@@ -31,6 +29,16 @@ export default function NewMissionPage() {
   const [drones, setDrones] = useState<any[]>([]);
   const [selectedDrone, setSelectedDrone] = useState<number | null>(null);
   const [selectedSensors, setSelectedSensors] = useState<string[]>([]);
+
+  const PolygonDrawer = dynamic(
+  () => import("@/components/PolygonDrawerClient"),
+  { ssr: false }
+);
+
+const MapClient = dynamic(
+  () => import("@/components/MapClient"),
+  { ssr: false }
+);
 
   // Fetch drones on load
   useEffect(() => {
