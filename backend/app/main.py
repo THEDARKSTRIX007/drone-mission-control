@@ -28,6 +28,11 @@ app.include_router(reports.router)
 app.include_router(analytics.router)
 
 
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Backend is running"}
+
+
 # WebSocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
