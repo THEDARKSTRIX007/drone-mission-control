@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import { ChevronRight, Zap } from "lucide-react";
+import dynamic from "next/dynamic";
 
 // Fix default Leaflet icons
 if (typeof window !== "undefined") {
@@ -28,6 +28,21 @@ const droneIcon = new L.Icon({
   iconSize: [32, 32],
   iconAnchor: [16, 16],
 });
+
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
 
 function DroneMapPreview({ lat, lng }: { lat: number; lng: number }) {
   return (
