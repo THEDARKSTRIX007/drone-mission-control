@@ -1,4 +1,4 @@
-# Drone Mission Control Dashboard
+# Drone Mission Control Dashboard - FRONTEND
 
 A full-featured frontend for real-time drone mission creation, monitoring, fleet management, and analytics. Built using Next.js 15, TypeScript, TailwindCSS, Leaflet, Zustand, and ShadCN UI.
 
