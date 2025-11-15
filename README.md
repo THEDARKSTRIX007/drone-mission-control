@@ -1,148 +1,164 @@
-# Drone Mission Control 
+# Drone Mission Control
 
-A complete backend system for drone mission planning, real-time simulation, drone tracking, analytics, fleet management, and reporting.  
+A complete backend system for drone mission planning, real time simulation, drone tracking, analytics, fleet management, and reporting.
 Built using **FastAPI**, **SQLAlchemy**, **PostgreSQL**, **WebSockets**, and a custom mission simulator.
+
+**Live Deployment:**
+(https://drone-mission-control-syoj.vercel.app/)
 
 ---
 
 ## Features
 
 ### Mission Management
-- Mission creation with:
-  - GeoJSON polygon area
-  - Grid, crosshatch, perimeter patterns
-  - Altitude configuration
-  - Drone assignment
-  - Sensor selection (optical, thermal, LiDAR, multispectral, RTK GPS, gas)
-- Automatic path generation using custom algorithms
-- Mission state transitions:
-  - Pending → In-Progress → Completed
-  - Pause, Resume, Abort
-  - Reset mission to restart simulation
-- Persistent progress tracking (`current_index`, timestamps)
+
+* Mission creation with:
+
+  * GeoJSON polygon area
+  * Grid, crosshatch, perimeter patterns
+  * Altitude configuration
+  * Drone assignment
+  * Sensor selection (optical, thermal, LiDAR, multispectral, RTK GPS, gas)
+* Automatic path generation using custom algorithms
+* Mission state transitions:
+
+  * Pending. In Progress. Completed
+  * Pause. Resume. Abort
+  * Reset mission to restart simulation
+* Persistent progress tracking (`current_index`, timestamps)
 
 ### Drone Management
-- Drone registry with:
-  - Name
-  - Battery percentage
-  - Status (available, in-use, etc.)
-  - Live location (lat/lng)
-- Auto-update drone battery + location during missions
-- Automatic release of drone on mission completion
 
-### Real-Time Simulation
-- Smooth real-time drone movement using:
-  - Interpolated waypoint traversal  
-  - 20 FPS flight updates (`FRAME_INTERVAL = 0.05`)
-  - Geodesic distance calculations
-- Automatic ETA calculation
-- Automatic mission finalization
-- Flight trail updates via WebSocket
+* Drone registry with:
+
+  * Name
+  * Battery percentage
+  * Status (available, in use, etc.)
+  * Live location (lat and lng)
+* Auto update of drone battery and location during missions
+* Automatic release of drone when mission completes
+
+### Real Time Simulation
+
+* Smooth real time drone movement with:
+
+  * Interpolated waypoint traversal
+  * 20 FPS updates using `FRAME_INTERVAL = 0.05`
+  * Geodesic distance based movement
+* Automatic ETA calculation
+* Automatic mission finalization upon completion
+* Flight trail updates broadcast over WebSocket
 
 ### WebSocket System
-- Broadcasts mission updates to all connected clients:
-  - Location
-  - Progress
-  - Battery
-  - ETA
-  - Mission status
-- Auto-cleanup of dead WebSocket connections
 
-### Reports & Analytics
-- Mission reports:
-  - Duration
-  - Distance traveled
-  - Area coverage estimate
-  - Path length & progress
-- Organization-level analytics:
-  - Total surveys
-  - Estimated total distance flown
-  - Estimated total flight hours
+* Broadcasts mission updates to all connected clients:
+
+  * Live drone location
+  * Progress
+  * Battery
+  * ETA
+  * Mission status
+* Automatic cleanup of dead WebSocket connections
+
+### Reports and Analytics
+
+* Mission reports include:
+
+  * Duration
+  * Distance traveled
+  * Area coverage estimate
+  * Path length and progress
+* Organization analytics include:
+
+  * Total surveys
+  * Estimated total distance flown
+  * Estimated flight hours
 
 ---
 
 ## Project Structure
 
+```text
 backend/
 ├── app/
-│ ├── main.py # FastAPI entrypoint
-│ ├── database.py # Database session + engine
-│ ├── websocket_manager.py # WebSocket client manager
-│ ├── mission_utils.py # Path-generation algorithms
-│ ├── services/
-│ │ └── mission_simulator.py # Real-time simulator
-│ ├── models/
-│ │ ├── mission.py
-│ │ └── drone.py
-│ └── routers/
-│ ├── missions.py
-│ ├── mission_control.py
-│ ├── drones.py
-│ ├── reports.py
-│ └── analytics.py
-├── alembic/ # Future DB migrations
+│   ├── main.py                 # FastAPI entrypoint
+│   ├── database.py             # Database session and engine
+│   ├── websocket_manager.py    # WebSocket client manager
+│   ├── mission_utils.py        # Path generation algorithms
+│   ├── services/
+│   │   └── mission_simulator.py   # Real time simulator
+│   ├── models/
+│   │   ├── mission.py
+│   │   └── drone.py
+│   └── routers/
+│       ├── missions.py
+│       ├── mission_control.py
+│       ├── drones.py
+│       ├── reports.py
+│       └── analytics.py
+├── alembic/                    # Database migrations
 ├── requirements.txt
 └── setup.sh
-
-yaml
-Copy code
+```
 
 ---
 
 ## API Endpoints Overview
 
 ### Mission Endpoints
-POST /missions/ # Create mission
-GET /missions/ # List missions
-GET /missions/{id} # Get mission details
-GET /missions/summary # Mission counts
-GET /missions/active # Last 10 active missions
 
-shell
-Copy code
+```http
+POST /missions/
+GET  /missions/
+GET  /missions/{id}
+GET  /missions/summary
+GET  /missions/active
+```
 
 ### Mission Control
+
+```http
 POST /missions/{id}/start
 POST /missions/{id}/pause
 POST /missions/{id}/resume
 POST /missions/{id}/abort
 POST /missions/{id}/reset
-
-shell
-Copy code
+```
 
 ### Drones
+
+```http
 GET /drones/
 GET /drones/active
 GET /drones/available
-
-shell
-Copy code
+```
 
 ### Reports
+
+```http
 GET /reports/missions
 GET /reports/{mission_id}
-
-shell
-Copy code
+```
 
 ### Analytics
-GET /analytics/overview
 
-shell
-Copy code
+```http
+GET /analytics/overview
+```
 
 ### WebSocket
-ws://127.0.0.1:8000/ws
 
-yaml
-Copy code
+```
+ws://127.0.0.1:8000/ws
+```
 
 ---
 
 ## Mission Creation Schema
 
-### Request Body
+### Request Body Example
+
+```json
 {
   "name": "Mission A",
   "pattern": "grid",
@@ -151,76 +167,66 @@ Copy code
   "sensors": ["lidar", "rtk_gps"],
   "area": {
     "type": "Polygon",
-    "coordinates": [[[lng, lat], ...]]
+    "coordinates": [[[77.5946, 12.9716], [77.5950, 12.9718], [77.5948, 12.9710]]]
   }
 }
-Mission Simulator Workflow
-Mission start creates a new simulator instance.
+```
 
-Loads waypoints from database.
+---
 
-Interpolates between points at 20 FPS.
+## Mission Simulator Workflow
 
-Updates:
+1. Mission start creates a new simulator instance.
+2. Loads waypoints from the database.
+3. Interpolates movement between points at 20 FPS.
+4. Updates each frame:
 
-Drone location
+   * Drone coordinates
+   * Battery drain
+   * Waypoint progress
+   * ETA
+5. Broadcasts telemetry to WebSocket clients.
+6. On the final waypoint:
 
-Battery drain
+   * Mission is marked completed
+   * Drone is released and set to available
+   * End time is saved
 
-Waypoint progress
+---
 
-Broadcasts updates over WebSocket.
+## Data Models
 
-On last waypoint:
+### Mission
 
-Marks mission completed
+* id
+* name
+* area (JSONB)
+* pattern
+* altitude
+* assigned_drone_id
+* sensors (JSONB list)
+* status
+* path (JSONB list of waypoints)
+* current_index
+* created_at
+* updated_at
+* start_time
+* end_time
 
-Releases drone (status → available)
+### Drone
 
-Saves end time
+* id
+* name
+* battery
+* status
+* location (JSON with lat and lng)
+* current_mission_id
 
-Models
-Mission
-id
+---
 
-name
+## Requirements
 
-area (JSONB)
-
-pattern
-
-altitude
-
-assigned_drone_id
-
-sensors (JSONB list)
-
-status
-
-path (JSONB list of waypoints)
-
-current_index
-
-timestamps
-
-start_time / end_time
-
-Drone
-id
-
-name
-
-battery
-
-status
-
-location (JSON)
-
-current_mission_id
-
-Requirements
-php
-Copy code
+```
 fastapi
 uvicorn
 SQLAlchemy
@@ -230,35 +236,41 @@ shapely
 python-dotenv
 websockets
 websocket-client
-Install:
+```
 
-bash
-Copy code
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
-Running the Backend
-1. Configure database
-Set environment variable:
+```
 
-bash
-Copy code
-DATABASE_URL=postgresql://postgres:password@localhost:5432/mission_control
-2. Start the server
-bash
-Copy code
+---
+
+## Running the Backend
+
+### Configure the Database
+
+```bash
+export DATABASE_URL=postgresql://postgres:password@localhost:5432/mission_control
+```
+
+### Start the Server
+
+```bash
 uvicorn app.main:app --reload
-Backend will be available at:
+```
 
-API → http://127.0.0.1:8000
+Backend available at:
 
-Docs → http://127.0.0.1:8000/docs
+* API: [http://127.0.0.1:8000](http://127.0.0.1:8000)
+* Docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
-Additional Notes
-Codec-safe WebSocket broadcasting included.
+---
 
-All path-generation and simulation logic is kept modular.
+## Additional Notes
 
-Designed to plug directly into the Next.js dashboard.
-
-Sensor selection fully supported end-to-end (frontend → API → DB).
-
-Zero external map APIs required.
+* WebSocket broadcasting is stable and codec safe.
+* All path generation and simulation logic is modular and separable.
+* Designed to integrate directly with a Next.js dashboard.
+* Sensor selection supported end to end from frontend to API to DB.
+* No external map API dependencies.
