@@ -32,7 +32,7 @@ export interface Mission {
 }
 
 export interface Drone {
-  id: string;
+  id: number;
   name: string;
   status: DroneStatus;
   battery: number;
@@ -88,7 +88,7 @@ interface MissionStore extends MissionState {
   // Fleet actions
   setDrones: (drones: Drone[]) => void;
   setActiveDrone: (drone: Drone | null) => void;
-  updateDrone: (droneId: string, updates: Partial<Drone>) => void;
+  updateDrone: (droneId: number, updates: Partial<Drone>) => void;
   // Reports actions
   setReports: (reports: MissionReport[]) => void;
   // Mission area actions
