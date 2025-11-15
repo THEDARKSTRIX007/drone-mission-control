@@ -50,15 +50,15 @@ export default function FleetPage() {
         setLoading(true);
         const data = await api.getDrones();
         setDrones(
-          data.map((d: any) => ({
-            id: d.id,
-            name: d.name,
-            status: d.status,
-            battery: d.battery,
-            location: d.location,
-            currentMissionId: d.current_mission_id ?? null, // FIX
-          }))
-        );
+        data.map((d: any) => ({
+          id: Number(d.id),
+          name: d.name,
+          status: d.status,
+          battery: d.battery,
+          location: d.location,
+          currentMissionId: d.current_mission_id ?? null,
+        }))
+      );
       } catch (err) {
         console.error("Failed to load drones:", err);
       } finally {
