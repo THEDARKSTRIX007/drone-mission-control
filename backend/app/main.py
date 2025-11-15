@@ -1,5 +1,6 @@
 import os
 print("\nMAIN LOADED FROM:", os.path.abspath(__file__), "\n")
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -8,10 +9,9 @@ from app.routers import missions, drones, mission_control, reports, analytics
 from app.websocket_manager import manager
 
 
-Base.metadata.create_all(bind=engine)
-
 app = FastAPI(title="Mission Control Backend")
 
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,6 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Routers
 app.include_router(missions.router)
 app.include_router(drones.router)
 app.include_router(mission_control.router)
@@ -27,6 +28,7 @@ app.include_router(reports.router)
 app.include_router(analytics.router)
 
 
+# WebSocket
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await manager.connect(websocket)
@@ -37,12 +39,17 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         await manager.disconnect(websocket)
 
+
+@app.on_event("startup")
+def startup_create_tables():
+    print("Running DB table creation...")
+    Base.metadata.create_all(bind=engine)
+
+
+# Debug route printing
 @app.on_event("startup")
 async def print_routes():
     print("\n=== ROUTES LOADED ===")
     for r in app.routes:
         print(type(r), getattr(r, 'path', None), getattr(r, 'methods', None))
     print("=== END ROUTES ===\n")
-
-
-
