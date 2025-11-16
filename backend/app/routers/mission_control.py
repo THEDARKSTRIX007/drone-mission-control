@@ -196,3 +196,44 @@ async def abort_mission(mission_id: int, db: Session = Depends(get_db)):
 
     return ControlResponse(status="ok")
 
+@router.post("/{mission_id}/reset", response_model=ControlResponse)
+async def reset_mission(mission_id: int, db: Session = Depends(get_db)):
+    mission = db.query(Mission).filter(Mission.id == mission_id).first()
+    if not mission:
+        raise HTTPException(404, f"Mission {mission_id} not found")
+
+    # Stop and remove any running simulator
+    if mission_id in simulators:
+        simulator = simulators[mission_id]
+        await simulator.abort()  # safely stop if running
+        del simulators[mission_id]
+
+    # Reset mission fields
+    mission.status = "pending"
+    mission.current_index = 0
+    mission.path = None
+    mission.start_time = None
+    mission.end_time = None
+    db.commit()
+
+    # Release drone if attached
+    if mission.assigned_drone_id:
+        drone = db.query(Drone).filter(Drone.id == mission.assigned_drone_id).first()
+        if drone:
+            drone.status = "available"
+            drone.current_mission_id = None
+            db.commit()
+
+    # Notify frontend
+    try:
+        await manager.broadcast_json({
+            "type": "mission_reset",
+            "missionId": mission_id,
+            "status": "pending",
+        })
+    except Exception:
+        pass
+
+    return ControlResponse(status="ok")
+
+
