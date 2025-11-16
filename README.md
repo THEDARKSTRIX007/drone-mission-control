@@ -5,6 +5,16 @@ Built using **FastAPI**, **SQLAlchemy**, **PostgreSQL**, **WebSockets**, and a c
 
 **Live Deployment:**
 (https://drone-mission-control-syoj.vercel.app/)
+i'll prefer use the localhost for reviewing since, the server provided by render is very underpowered causing lag and latency!
+
+
+To insert dummy drones in postgres run this::
+
+INSERT INTO drones (name, battery, status, location)
+VALUES 
+  ('Drone Alpha', 100, 'available', '{"lat":12.9716, "lng":77.5946}'),
+  ('Drone Bravo', 100, 'available', '{"lat":12.9720, "lng":77.5940}'),
+  ('Drone Charlie', 100, 'available', '{"lat":12.9730, "lng":77.5950}');
 
 ---
 
